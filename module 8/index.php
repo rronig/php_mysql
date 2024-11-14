@@ -14,8 +14,16 @@ try{
     //$pdo -> exec($sql);
 
     //echo "Table created successfully";
+    $username = "Jack";
 
-}catch(Exception $e){
+    $password = password_hash("mypassword", PASSWORD_DEFAULT);
+    //Insert  statement for SQL
+    $sql="INSERT INTO users(username, password) VALUES ('$username', password)";
+    //Execute statement using the exec() method
+    $pdo -> exec($sql);
+    echo"New record created";
+}catch(PDOException $e){
     //echo "Error creating table:  ". $e->getMessage();
+    echo $e->getMessage();
 }
 ?> 
