@@ -18,10 +18,11 @@ try{
 
     $password = password_hash("mypassword", PASSWORD_DEFAULT);
     //Insert  statement for SQL
-    $sql="INSERT INTO users(username, password) VALUES ('$username', password)";
+    $sql="INSERT INTO users(username, password) VALUES ('$username', '$password')";
     //Execute statement using the exec() method
     $pdo -> exec($sql);
-    echo"New record created";
+    $last_id=$pdo->lastInsertId();
+    echo"New record created. Last inserted ID is: ". $last_id;
 }catch(PDOException $e){
     //echo "Error creating table:  ". $e->getMessage();
     echo $e->getMessage();

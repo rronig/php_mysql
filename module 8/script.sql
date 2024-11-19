@@ -1,4 +1,4 @@
-CREATE TABLE categories(
+/*CREATE TABLE categories(
     id INTEGER PRIMARY KEY, 
     name VARCHAR(255) NOT NULL
 );
@@ -26,4 +26,4 @@ INSERT INTO products(id, name, category_id)VALUES
 (7,'Cookies', 2),
 (8,'Pasta', 3),
 (9,'Rice', 3),
-(10,'Cereal', 3); 
+(10,'Cereal', 3); */
