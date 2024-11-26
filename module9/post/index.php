@@ -6,14 +6,14 @@
         <title>Form</title>
     </head>
     <body>
-        <form action="">
+        <form action="add.php" method="POST">
             <label for="name">Name: </label>
-            <input type="text" name="name" placeholder="Name"><br>
+            <input type="text" name="name" id="name" placeholder="Name" required><br>
             <label for="username">Username: </label>
-            <input type="text" name="username" placeholder="Username"><br>
+            <input type="text" name="username" id="username" placeholder="Username" required><br>
             <label for="email">Email: </label><br>
-            <input type="email" name="email" placeholder="Email"><br><br>
-            <button type="submit" name="Submit">Add</button>
+            <input type="email" name="email" id="email" placeholder="Email" required><br><br>
+            <button type="submit" name="submit">Add</button>
         </form>
     </body>
 </html>
