@@ -1,23 +1,19 @@
 <?php
 require_once 'config.php';
-
-try {
-    // Fetch data from the database
-    $sql = "SELECT id, username, email, password FROM users";
-    $stmt = $pdo->query($sql);
-    $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
-} catch (PDOException $e) {
-    echo "Error: " . $e->getMessage();
-    exit; // Stop further execution if an error occurs
+try{
+    $sql="SELECT id, username, email, password FROM users";
+    $stmt=$pdo->query($sql);
+    $users=$stmt->fetchAll(PDO::FETCH_ASSOC);
+}catch(PDOException $e){
+    echo"Error: ". $e->getMessage();
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>User Table</title>
     <style>
         table {
             width: 100%;
