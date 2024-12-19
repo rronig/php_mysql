@@ -1,3 +1,31 @@
+<?php require_once("config.php");
+$error="";
+$success="";
+if($_SERVER["REQUEST_METHOD"] == "POST"){
+    $username= mysqli_real_escape_string($conn, $_POST['username']);
+    $email= mysqli_real_escape_string($conn, $_POST['email']);
+    $password= mysqli_real_escape_string($conn, $_POST['password']);
+    if(empty($username) || empty($email) || empty($password)){
+        $error="All fields are required!";
+    }else{
+        $checkuser="SELECT * FROM users WHERE username='$username' or email='$email'";
+        $result=$conn->query($checkuser);
+        if($result->num_rows>0){
+            $error="Username or email already exists!";
+        }
+        else{
+            $hashed_password=md5($password);
+            $sql="INSERT INTO users(username, email, password) VALUES ('$username', '$email', '$$hashed_password')";
+            if($conn->query($sql) === TRUE){
+                $success="Registered! You can now <a href='login.php'>Log In Here</a>";
+            }else{
+                $error="Error".$conn->error;
+            }
+        }
+        
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -77,7 +105,7 @@
         <?php if (isset($error)) { echo "<div class='alert alert-danger'>$error</div>"; } ?>
         <form action="register.php" method="POST">
             <div class="mb-3">
-                <label for="us ername" class="form-label">Username</label>
+                <label for="username" class="form-label">Username</label>
                 <input type="text" id="username" name="username" class="form-control" required>
             </div>
             <div class="mb-3">

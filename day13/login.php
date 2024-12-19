@@ -1,10 +1,38 @@
+<?php
+require_once ("config.php");
+session_start();
+
+if($_SERVER["REQUEST_METHOD"] == "POST"){
+    $username = $_POST['username'];
+    $password = md5($_POST['password']); //Hash the password
+
+    // Query to check admin credentials
+    $sql = "SELECT * FROM admin WHERE username = '$username' AND password = '$password' ";
+    $result= $conn->query($sql);
+
+    if ($result->num_rows == 1){
+        $_SESSION['admin_logged_in'] = true;
+        header("Location: admin.php"); 
+        exit();
+    }else{
+        $error = "Invalid Username or Password!";
+    }
+}
+
+?>
+
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="
+https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css
+">
     <style>
         /* Background gradient for the entire page */
         body {
@@ -91,4 +119,4 @@
         </div>
     </div>
 </body>
-</html>
+</html> 
