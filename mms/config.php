@@ -1,11 +1,11 @@
 <?php 
-$host="localhost";
-$username="root";
+$server="localhost";
+$user="root";
 $password=""; //$password='';
 $dbname="mms";
 try{
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $conn = new PDO("mysql:host=$server;dbname=$dbname", $user, $password);
+    echo"<h1>Success</h1>";
 }catch(PDOException $e){
     echo"Error code: ". $e->getMessage();
 }
