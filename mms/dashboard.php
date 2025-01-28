@@ -1,4 +1,5 @@
 <?php
+session_start();
 include_once("config.php");
 if(empty($_SESSION['username'])){
 header("Location: login.php");
@@ -31,7 +32,7 @@ https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css
     </head>
     <body>
         <header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
-            <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="#"><?php echo"Welcome to dashboard". $_SESSION['username'];?></a>
+            <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="#"><?php echo"Welcome to dashboard ". $_SESSION['username'];?></a>
             <button class="navbar-toggler position-absolute d-md-none collapsed" type="button">
                 <span class="navbar-toggle-icon"></span>
             </button>
@@ -91,9 +92,36 @@ https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css
                         <?php if($_SESSION['isadmin'] == 'true'){}?>
                         <h2>Users</h2>
                         <div class="table-responsive">
-                            <table class="table table-striped">
+                        <table class="table table-striped table-sm">
+                          <thead>
+                            <tr>
+                              <th scope="col">Id</th>
+                              <th scope="col">Name</th>
+                              <th scope="col">Username</th>
+                              <th scope="col">Email</th>
+                              <th scope="col">Update</th>
+                              <th scope="col">Delete</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <?php foreach ($users_data as $user_data) { ?>
 
-                            </table>
+                              <tr>
+                                <td><?php echo $user_data['id']; ?></td>
+                                <td><?php echo $user_data['name']; ?></td>
+                                <td><?php echo $user_data['username']; ?></td>
+                                <td><?php echo $user_data['email']; ?></td>
+                        
+                                <td><a href="updateUsers.php?id=<?= $user_data['id'];?>">Update</a></td>
+                          
+                                <td><a href="deleteUsers.php?id=<?= $user_data['id'];?>">Delete</a></td>
+                              </tr>
+                              
+                          <?php  } ?>
+                          
+                            
+                          </tbody>
+                        </table>
                         </div>
                     </main>
                 </div>
@@ -105,5 +133,6 @@ https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.js
 " integrity="sha384-uO3SXW5IuS1ZpFPKugNNWqTZRRglnUJK6UAZ/gxOX80nxEkN9NcGZTftn6RzhGWE" crossorigin="anonymous"></script><script src="
 https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js
 " integrity="sha384-zNy6FEbO50N+Cg5wap8IKA4M/ZnLJgzc6w2NqACZaK0u0FXfOWRRJOnQtpZun8ha" crossorigin="anonymous"></script><script src="dashboard.js"></script>
+                            <button></button>
     </body>
 </html>

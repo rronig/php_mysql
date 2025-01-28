@@ -1,9 +1,36 @@
-<?php include_once('config.php'); 
-if(isset($_POST['submit'])){
-    $username=$_POST['username'];
-    $password=$_POST['password'];
-    if(empty($username) || empty($password)){
-        echo"Please fill in all fields";
+<?php
+session_start(); // Start the session
+include_once('config.php'); 
+
+$error = ""; // Variable to store error messages
+
+if (isset($_POST['submit'])) {
+    $username = trim($_POST['username']);
+    $password = trim($_POST['password']);
+
+    // Check if fields are empty
+    if (empty($username) || empty($password)) {
+        $error = "Please fill in all fields";
+    } else {
+        // Query to fetch user
+        $sql = "SELECT * FROM users WHERE username = :username";
+        $stmt = $conn->prepare($sql);
+        $stmt->bindParam(':username', $username, PDO::PARAM_STR);
+        $stmt->execute();
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($user) {
+            if ($password === $user['password']) {
+                $_SESSION['username'] = $user['username'];
+                $_SESSION['isadmin'] = $user['role'] === 'admin' ? 'true' : 'false';
+                header("Location: dashboard.php");
+                exit;
+            } else {
+                $error = "Invalid username or password.";
+            }
+        } else {
+            $error = "User not found";
+        }
     }
 }
 ?>
@@ -13,18 +40,13 @@ if(isset($_POST['submit'])){
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <link rel="stylesheet" href="
-https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css
-">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css">
     <style>
-        /* Background gradient for the entire page */
         body {
             background: linear-gradient(135deg, #66785F, white);
             color: #fff;
             font-family: 'Arial', sans-serif;
         }
-
-        /* Center card with smooth edges and gradient border */
         .card {
             background-color: #fff;
             border-radius: 15px;
@@ -33,50 +55,38 @@ https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css
             border: 2px solid transparent;
             background-clip: padding-box;
         }
-
         .card:hover {
             border-image: linear-gradient(to right, #66785F, #B2C9AD) 1;
             transform: translateY(-5px);
             transition: all 0.3s ease;
         }
-
-        /* Stylish buttons */
         .btn-primary {
             background: linear-gradient(to right, #66785F, #B2C9AD);
             border: none;
             transition: all 0.3s ease;
         }
-
         .btn-primary:hover {
             background: linear-gradient(to right, #66785F, #B2C9AD);
             transform: scale(1.05);
         }
-
-        /* Links with hover effect */
         a {
             color: #6a11cb;
             text-decoration: none;
             font-weight: bold;
             transition: color 0.3s ease;
         }
-
         a:hover {
             color: #4B5945;
         }
-
-        /* Inputs styling */
         input.form-control {
             border-radius: 10px;
             border: 1px solid #ddd;
             transition: border 0.3s ease, box-shadow 0.3s ease;
         }
-
         input.form-control:focus {
             border-color: #4B5945;
             box-shadow: 0 0 8px #91AC8F;
         }
-
-        /* Title */
         h2 {
             color: #4B5945;
         }
@@ -85,7 +95,7 @@ https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css
 <body class="d-flex align-items-center justify-content-center vh-100">
     <div class="card shadow-sm p-4" style="width: 400px;">
         <h2 class="text-center mb-4">Login</h2>
-        <?php if (isset($error)) { echo "<div class='alert alert-danger'>$error</div>"; } ?>
+        <?php if (!empty($error)) { echo "<div class='alert alert-danger'>$error</div>"; } ?>
         <form action="login.php" method="POST">
             <div class="mb-3">
                 <label for="username" class="form-label">Username</label>
@@ -95,11 +105,11 @@ https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css
                 <label for="password" class="form-label">Password</label>
                 <input type="password" id="password" name="password" class="form-control" required>
             </div>
-            <button type="submit" class="btn btn-primary w-100">Login</button>
+            <button type="submit" name="submit" class="btn btn-primary w-100">Login</button>
         </form>
         <div class="text-center mt-3">
-            <p >Don't have an account? <a style="color: #4B5945" href="register.php">Register here</a></p>
+            <p>Don't have an account? <a style="color: #4B5945" href="register.php">Register here</a></p>
         </div>
     </div>
 </body>
-</html> 
+</html>
