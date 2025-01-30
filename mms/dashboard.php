@@ -8,6 +8,7 @@ $sql = "SELECT * FROM users";
 $selectUsers=$conn->prepare($sql);
 $selectUsers->execute();
 $users_data=$selectUsers->fetchAll();
+$adminorno=$_SESSION['isadmin'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -49,7 +50,7 @@ https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css
                         <div class="position-sticky pt-3">
                             <ul class="nav flex-column">
                                 <?php
-                                if($_SESSION['isadmin'] == 'true'){
+                                if($adminorno == '1') {
                                 ?><li class="nav-item">
                                 <a class="nav-link" href="home.php">
                                   <span data-feather="file"></span>
@@ -89,7 +90,7 @@ https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css
                         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                             <h1 class="h2">Dashboard</h1>
                         </div>
-                        <?php if($_SESSION['isadmin'] == 'true'){}?>
+                        <?php if($adminorno == '1') {?>
                         <h2>Users</h2>
                         <div class="table-responsive">
                         <table class="table table-striped table-sm">
@@ -104,7 +105,7 @@ https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css
                             </tr>
                           </thead>
                           <tbody>
-                            <?php foreach ($users_data as $user_data) { ?>
+                            <?php  foreach ($users_data as $user_data) { ?>
 
                               <tr>
                                 <td><?php echo $user_data['id']; ?></td>
@@ -117,7 +118,7 @@ https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css
                                 <td><a href="deleteUsers.php?id=<?= $user_data['id'];?>">Delete</a></td>
                               </tr>
                               
-                          <?php  } ?>
+                          <?php  } }?>
                           
                             
                           </tbody>
@@ -133,6 +134,6 @@ https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.js
 " integrity="sha384-uO3SXW5IuS1ZpFPKugNNWqTZRRglnUJK6UAZ/gxOX80nxEkN9NcGZTftn6RzhGWE" crossorigin="anonymous"></script><script src="
 https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js
 " integrity="sha384-zNy6FEbO50N+Cg5wap8IKA4M/ZnLJgzc6w2NqACZaK0u0FXfOWRRJOnQtpZun8ha" crossorigin="anonymous"></script><script src="dashboard.js"></script>
-                            <button></button>
+                            
     </body>
 </html>
