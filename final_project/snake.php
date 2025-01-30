@@ -12,22 +12,22 @@
             font-family: Arial, sans-serif;
         }
         .arcade-container {
-            position: relative; /* Makes it a reference for absolute positioning */
-            width: 500px; /* Adjust based on your arcade machine image */
+            position: relative;
+            width: 500px;
             margin: auto;
         }
         .arcade-image {
-            width: 100%; /* Makes the image fit inside the container */
+            width: 100%;
             display: block;
         }
         #gameCanvas {
             position: absolute;
-            top: 24%;  /* Adjust to fit inside the arcade screen */
-            left: 19%; /* Adjust to fit inside the arcade screen */
+            top: 24%;
+            left: 19%;
             width: 60%;
             height: 30%;
             background: blue;
-            border: 10px solid black;
+            border: 2px solid black;
             z-index: 10;
         }
     </style>
@@ -46,32 +46,39 @@
 
         const box = 20; 
         let snake = [{x: 10 * box, y: 10 * box}];
-        let direction = "RIGHT";
+        let direction = "";
         let food = {
             x: Math.floor(Math.random() * (canvas.width / box)) * box,
             y: Math.floor(Math.random() * (canvas.height / box)) * box
         };
         let score = 0;
+        let changingDirection = false;  // Flag to prevent rapid direction changes
 
         document.addEventListener("keydown", changeDirection);
-        
+
         function changeDirection(event) {
+            if (changingDirection) return; // Prevent direction change if one is already in progress
+            changingDirection = true;
+
             const key = event.keyCode;
-            if (key === 37 && direction !== "RIGHT") direction = "LEFT";
-            if (key === 38 && direction !== "DOWN") direction = "UP";
-            if (key === 39 && direction !== "LEFT") direction = "RIGHT";
-            if (key === 40 && direction !== "UP") direction = "DOWN";
+            if (key === 37 && direction !== "RIGHT" || key===65 && direction !== "RIGHT") direction = "LEFT";
+            if (key === 38 && direction !== "DOWN" || key===87 && direction !== "DOWN") direction = "UP";
+            if (key === 39 && direction !== "LEFT" || key===68 && direction !== "LEFT") direction = "RIGHT";
+            if (key === 40 && direction !== "UP" || key===83 && direction !== "UP") direction = "DOWN";
+
+            // Reset changingDirection flag after a brief delay to allow next valid key press
+            setTimeout(() => {
+                changingDirection = false;
+            }, 100);  // 100ms delay between changes
         }
 
         function drawGame() {
             ctx.fillStyle = "blue";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Draw food
             ctx.fillStyle = "red";
             ctx.fillRect(food.x, food.y, box, box);
 
-            // Draw snake
             ctx.fillStyle = "lime";
             snake.forEach(segment => ctx.fillRect(segment.x, segment.y, box, box));
 
@@ -83,7 +90,6 @@
             if (direction === "RIGHT") newX += box;
             if (direction === "DOWN") newY += box;
 
-            // Check for collision with food
             if (newX === food.x && newY === food.y) {
                 score++;
                 document.getElementById("score").innerText = score;
@@ -91,14 +97,12 @@
                     x: Math.floor(Math.random() * (canvas.width / box)) * box,
                     y: Math.floor(Math.random() * (canvas.height / box)) * box
                 };
-                saveScore(score);
             } else {
                 snake.pop();
             }
 
             let newHead = {x: newX, y: newY};
 
-            // Check for collisions
             if (collision(newHead)) {
                 alert("Game Over! Your score: " + score);
                 window.location.reload();
