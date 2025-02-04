@@ -32,7 +32,8 @@ if (isset($_POST['submit'])) {
             $stmt->bindParam(':name', $name, PDO::PARAM_STR);
             $stmt->bindParam(':username', $username, PDO::PARAM_STR);
             $stmt->bindParam(':email', $email, PDO::PARAM_STR);
-            $stmt->bindParam(':password', password_hash($password, PASSWORD_BCRYPT), PDO::PARAM_STR); // Hash the password before storing
+            // Hash the password before storing it
+            $stmt->bindParam(':password', password_hash($password, PASSWORD_BCRYPT), PDO::PARAM_STR);
             $role = 'user'; // Define the role explicitly
             $stmt->bindParam(':role', $role, PDO::PARAM_STR);
             
@@ -48,7 +49,6 @@ if (isset($_POST['submit'])) {
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
