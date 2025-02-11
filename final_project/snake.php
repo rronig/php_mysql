@@ -1,4 +1,4 @@
-<?php if(empty($_SESSION['username'])){
+<?php session_start(); if(empty($_SESSION['username'])){
 header("Location: register.php");
 }
 ?>
