@@ -6,7 +6,7 @@ $error = "";
 
 // Check if user is already logged in
 if (!empty($_SESSION['username'])) {
-    header("Location: snake.php");  // Redirect to snake game if logged in
+    header("Location: dashboard.php");  // Redirect to dashboard if logged in
     exit;
 }
 
@@ -28,9 +28,11 @@ if (isset($_POST['submit'])) {
             
             // Compare plain text password (not recommended for production)
             if ($password === $user['password']) {
+                // Store user details in session
+                $_SESSION['user_id'] = $user['id']; // Store the user ID
                 $_SESSION['username'] = $user['username'];
-                $_SESSION['isadmin'] = ($user['role'] === 'admin') ? 'true' : 'false';
-                header("Location: snake.php");
+                $_SESSION['role'] = $user['role']; // Store the user role
+                header("Location: dashboard.php");
                 exit;
             } else {
                 $error = "Incorrect password";

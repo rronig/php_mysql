@@ -3,7 +3,10 @@ session_start(); // Start the session
 include_once('config.php'); 
 
 $error = ""; // Variable to store error messages
-
+if (!empty($_SESSION['username'])) {
+    header("Location: dashboard.php");  // Redirect to dashboard if logged in
+    exit;
+}
 if (isset($_POST['submit'])) {
     $username = trim($_POST['username']);
     $password = trim($_POST['password']);
@@ -35,9 +38,12 @@ if (isset($_POST['submit'])) {
             $role = 'user';
             $stmt->bindParam(':role', $role, PDO::PARAM_STR);
             if ($stmt->execute()) {
+                // Fetch the newly created user's ID
+                $user_id = $conn->lastInsertId();
+                $_SESSION['user_id'] = $user_id; // Store the user ID in the session
                 $_SESSION['username'] = $username;
                 $_SESSION['isadmin'] = 'false';
-                header("Location: snake.php");
+                header("Location: dashboard.php");
                 exit;
             } else {
                 $error = "Registration failed. Please try again.";
