@@ -124,6 +124,7 @@ $conn->close();
             <div class="d-grid gap-2">
                 <a href="snake.php" class="btn btn-primary">Play Snake</a>
                 <a href="tetris.php" class="btn btn-primary">Play Tetris</a>
+                <a href="chess.php" class="btn btn-primary">Play Chess</a>
             </div>
         </div>
 
