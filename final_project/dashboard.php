@@ -47,16 +47,19 @@ $conn->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Rubik+Dirt&family=Rubik+Spray+Paint&family=Sigmar&display=swap" rel="stylesheet">
     <style>
         body {
-    background: linear-gradient(135deg, #66785F, white);
-    background-attachment: fixed; /* Ensures the gradient covers the entire page */
-    color: #fff;
-    font-family: 'Arial', sans-serif;
-    padding: 20px;
-    margin: 0; /* Remove default margin */
-    min-height: 100vh; /* Ensure the gradient covers the full viewport height */
-}
+            text-align: center;
+            background: linear-gradient(87deg, rgb(87, 143, 202), rgb(209, 248, 239));
+            background-attachment: fixed; /* Ensures the gradient covers the entire page */
+            color: white;
+            font-family: "Rubik Dirt", serif;
+            padding:20px;
+            margin:0px;
+        }
         .card {
             background-color: #fff;
             border-radius: 15px;
@@ -67,7 +70,6 @@ $conn->close();
             margin-bottom: 20px;
         }
         .card:hover {
-            border-image: linear-gradient(to right, #66785F, #B2C9AD) 1;
             transform: translateY(-5px);
             transition: all 0.3s ease;
         }
@@ -87,7 +89,7 @@ $conn->close();
             transition: color 0.3s ease;
         }
         a:hover {
-            color: #4B5945;
+            color: #3673b5;
         }
         h2 {
             color: #4B5945;
@@ -97,36 +99,81 @@ $conn->close();
             top: 10px;
             right: 10px;
             padding: 10px 20px;
-            background: #4B5945;
+            background: #3673b5;
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 32px;
         }
         .logout-button:hover {
-            background: #66785F;
+            background: #5C8FC7;
+        }
+        
+        .montserrat{
+            font-family: "Montserrat", serif;
+            font-optical-sizing: auto;
+            font-weight: 900;
+            font-style: normal;
+        }
+        .rubik-spray-paint-regular {
+            font-family: "Rubik Spray Paint", serif;
+            font-weight: 400;
+            font-style: normal;
         }
     </style>
 </head>
 <body>
     <!-- Logout Button -->
     <form action="logout.php" method="POST">
-        <button type="submit" class="logout-button">Logout</button>
+        <button type="submit" class="logout-button rubik-spray-paint-regular">Logout</button>
     </form>
 
     <div class="container">
         <h1 class="text-center mb-4">Welcome, <?php echo $_SESSION['username']; ?>!</h1>
-
         <!-- Game Links -->
         <div class="card">
             <h2>Games</h2>
-            <div class="d-grid gap-2">
-                <a href="snake.php" class="btn btn-primary">Play Snake</a>
-                <a href="tetris.php" class="btn btn-primary">Play Tetris</a>
-                <a href="chess.php" class="btn btn-primary">Play Chess</a>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="snake.php" class="montserrat game-btn snake" style="margin-top: 20px;">Play Snake</a>
+                <a href="tetris.php" class="montserrat game-btn tetris" style="margin-top: 20px;">Play Tetris</a>
+                <a href="chess.php" class="montserrat game-btn chess" style="margin-top: 20px;">Play Chess</a>
             </div>
         </div>
+
+        <style>
+            .game-btn {
+                width: 350px; /* Adjust width */
+                height: 500px; /* Make buttons vertically longer */
+                border-radius: 10px;
+                color: white;
+                font-size: 20px;
+                font-weight: bold;
+                text-align: center;
+                text-decoration: none;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background-size: cover;
+                background-position: center;
+                transition: transform 0.3s ease, opacity 0.3s ease;
+            }
+            .game-btn:hover {
+                transform: scale(1.05);
+                opacity: 0.9;
+            }
+            .snake {
+                background-image: url('snake-bg.png'); /* Replace with actual image */
+            }
+            .tetris {
+                background-image: url('tetris-bg.svg'); /* Replace with actual image */
+            }
+            .chess {
+                background-image: url('chess-bg.png'); /* Replace with actual image */
+            }
+        </style>
+
+
 
         <!-- User Management (Admin Only) -->
         <?php if ($_SESSION['role'] === 'admin'): ?>

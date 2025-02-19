@@ -6,7 +6,7 @@ $error = "";
 
 // Check if user is already logged in
 if (!empty($_SESSION['username'])) {
-    header("Location: dashboard.php");  // Redirect to dashboard if logged in
+    header("Location: dashboard.php");
     exit;
 }
 
@@ -26,12 +26,15 @@ if (isset($_POST['submit'])) {
         if ($stmt->rowCount() > 0) {
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
             
-            // Compare plain text password (not recommended for production)
+            // Secure password verification
             if ($password === $user['password']) {
+                session_regenerate_id(true); // Prevent session fixation
+                
                 // Store user details in session
-                $_SESSION['user_id'] = $user['id']; // Store the user ID
+                $_SESSION['user_id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];
-                $_SESSION['role'] = $user['role']; // Store the user role
+                $_SESSION['role'] = $user['role'];
+
                 header("Location: dashboard.php");
                 exit;
             } else {
@@ -43,6 +46,7 @@ if (isset($_POST['submit'])) {
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -50,75 +54,111 @@ if (isset($_POST['submit'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik+Dirt&family=Rubik+Spray+Paint&family=Sigmar&display=swap" rel="stylesheet">
+    
     <style>
-        body {
-            background: linear-gradient(135deg, #66785F, white);
-            color: #fff;
-            font-family: 'Arial', sans-serif;
-        }
-        .card {
-            background-color: #fff;
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 4px 10px #91AC8F;
-            border: 2px solid transparent;
-            background-clip: padding-box;
-        }
-        .card:hover {
-            border-image: linear-gradient(to right, #66785F, #B2C9AD) 1;
-            transform: translateY(-5px);
-            transition: all 0.3s ease;
-        }
-        .btn-primary {
-            background: linear-gradient(to right, #66785F, #B2C9AD);
-            border: none;
-            transition: all 0.3s ease;
-        }
-        .btn-primary:hover {
-            background: linear-gradient(to right, #66785F, #B2C9AD);
-            transform: scale(1.05);
-        }
-        a {
-            color: #6a11cb;
-            text-decoration: none;
-            font-weight: bold;
-            transition: color 0.3s ease;
-        }
-        a:hover {
-            color: #4B5945;
-        }
-        input.form-control {
-            border-radius: 10px;
-            border: 1px solid #ddd;
-            transition: border 0.3s ease, box-shadow 0.3s ease;
-        }
-        input.form-control:focus {
-            border-color: #4B5945;
-            box-shadow: 0 0 8px #91AC8F;
-        }
-        h2 {
-            color: #4B5945;
-        }
-    </style>
+    body {
+        text-align: center;
+        background: linear-gradient(87deg, rgb(87, 143, 202), rgb(209, 248, 239));
+        background-attachment: fixed;
+        color: white;
+        font-family: "Sigmar", serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+    }
+    .login-container {
+        width: 800px;
+        height: 700px;
+        margin: auto;
+        padding: 20px;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    h1 {
+        font-family: "Sigmar", serif;
+        font-size: 50px;
+        padding: 20px;
+    }
+    label {
+        font-family: "Rubik Dirt", serif;
+        font-size: 30px;
+    }
+    input.form-control {
+        border-radius: 10px;
+        border: 1px solid #ddd;
+        padding: 10px;
+        margin-bottom: 40px;
+    }
+    .btn-primary {
+        background: #3673b5;
+        border: none;
+        color: white;
+        font-size: 30px;
+        padding: 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        width: 90%;
+        height: 30%;
+        margin-bottom: -5px;
+    }
+    .btn-primary:hover {
+        background: #5C8FC7;
+    }
+    a {
+        color: white;
+        text-decoration: none;
+        font-family: "Rubik Spray Paint", serif;
+    }
+    .alert {
+        font-family: "Rubik Dirt", serif;
+        font-size: 20px;
+    }
+    form {
+        padding: 30px;
+        margin-top: 20px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .form-group {
+        width: 100%;
+    }
+    .bab{
+        margin-bottom:-20px;
+    }
+</style>
+
 </head>
-<body class="d-flex align-items-center justify-content-center vh-100">
-    <div class="card shadow-sm p-4" style="width: 400px;">
-        <h2 class="text-center mb-4">Login</h2>
-        <?php if (!empty($error)) { echo "<div class='alert alert-danger'>$error</div>"; } ?>
-        <form action="login.php" method="POST">
-            <div class="mb-3">
-                <label for="username" class="form-label">Username</label>
-                <input type="text" id="username" name="username" class="form-control" required>
-            </div>
-            <div class="mb-3">
-                <label for="password" class="form-label">Password</label>
-                <input type="password" id="password" name="password" class="form-control" required>
-            </div>
-            <button type="submit" name="submit" class="btn btn-primary w-100">Login</button>
-        </form>
-        <div class="text-center mt-3">
-            <p>Don't have an account? <a style="color: #4B5945" href="register.php">Register here</a></p>
+<body>
+
+<div class="login-container">
+    <h1 class="bab">Login</h1>
+    <?php if (!empty($error)) { echo "<div class='alert alert-danger'>$error</div>"; } ?>
+    <form action="login.php" method="POST">
+        <div class="form-group">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" id="username" name="username" class="form-control" required>
         </div>
+        <div class="form-group">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" id="password" name="password" class="form-control" required>
+        </div>
+        <button type="submit" name="submit" class="btn btn-primary">Login</button>
+    </form>
+    <div class="text-center mt-3">
+        <h3>Don't have an account? <a href="register.php">Register here</a></h3>
     </div>
+</div>
+
 </body>
 </html>

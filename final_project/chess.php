@@ -14,168 +14,218 @@ if (empty($_SESSION['username'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chess Game</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik+Dirt&family=Rubik+Spray+Paint&family=Sigmar&display=swap" rel="stylesheet">
     <!-- Chessboard.js CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.css">
     <style>
         body {
             text-align: center;
-    background: linear-gradient(135deg, #66785F, white);
-    background-attachment: fixed; /* Ensures the gradient covers the entire page */
+            background: linear-gradient(87deg, rgb(87, 143, 202), rgb(209, 248, 239));
+            background-attachment: fixed;
             color: white;
             font-family: Arial, sans-serif;
         }
         #chessboard {
-            width: 400px;
+            width: 800px;
             margin: 20px auto;
         }
-        .logout-button {
+        .logout-button, .dashboard-button {
             position: absolute;
             top: 10px;
-            right: 10px;
             padding: 10px 20px;
-            background: #4B5945;
+            background: #3673b5;
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 32px;
         }
-        .logout-button:hover {
-            background: #66785F;
+        .logout-button { right: 10px; }
+        .dashboard-button { left: 10px; }
+        .logout-button:hover, .dashboard-button:hover { background: #5C8FC7; }
+        .sigmar-regular { font-family: "Sigmar", serif; font-size: 64px; }
+        .rubik-dirt-regular { font-family: "Rubik Dirt", serif; font-size: 32px; }
+        .rubik-spray-paint-regular { font-family: "Rubik Spray Paint", serif; }
+        nav { background: blue; }
+
+        /* Promotion Popup */
+        #promotion-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+            text-align: center;
         }
+        #promotion-popup p { color: black; font-size: 20px; }
+        #promotion-popup button {
+            font-size: 20px;
+            margin: 5px;
+            padding: 10px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background: #3673b5;
+            color: white;
+        }
+        #promotion-popup button:hover { background: #5C8FC7; }
     </style>
 </head>
 <body>
-    <!-- Logout Button -->
-    <form action="logout.php" method="POST">
-        <button type="submit" class="logout-button">Logout</button>
-    </form>
-
-    <h1>Chess Game</h1>
+    <nav>
+        <form action="logout.php" method="POST">
+            <button type="submit" class="logout-button rubik-spray-paint-regular">Logout</button>
+        </form>
+        <form action="dashboard.php" method="POST">
+            <button type="submit" class="dashboard-button rubik-spray-paint-regular">Dashboard</button>
+        </form>
+    </nav>
+    <h1 class="sigmar-regular">Chess Game</h1>
     <div id="chessboard"></div>
-    <p id="status">Make your move!</p>
+
+    <label for="difficulty" class="rubik-dirt-regular">Stockfish Difficulty:</label>
+    <input type="range" id="difficulty" min="1" max="20" value="10" oninput="updateDifficulty(this.value)">
+    <span id="difficulty-value" class="rubik-dirt-regular">10</span>
+
+    <h2 class="rubik-dirt-regular" id="status">Make your move!</h2>
+
+    <!-- Promotion Selection Popup -->
+    <div id="promotion-popup">
+        <p>Choose a promotion:</p>
+        <button onclick="setPromotion('q')">♛ Queen</button>
+        <button onclick="setPromotion('r')">♜ Rook</button>
+        <button onclick="setPromotion('b')">♝ Bishop</button>
+        <button onclick="setPromotion('n')">♞ Knight</button>
+    </div>
+
     <!-- Add jQuery -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <!-- Chessboard.js JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.js"></script>
     <!-- Chess.js for move validation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.2/chess.min.js"></script>
-    
+
     <script>
-    // Initialize the chessboard
-    const board = Chessboard('chessboard', {
-        draggable: true,
-        dropOffBoard: 'trash',
-        sparePieces: false,
-        position: 'start',
-        onDrop: handleMove
-    });
+        let board, game = new Chess();
+        let stockfish = new Worker('stockfish.js');
+        let pendingPromotion = null;
+        let playerTurn = true; // Ensure the player can only move when it's their turn
 
-    // Initialize the chess game
-    const game = new Chess();
-
-    // Initialize Stockfish Web Worker (use a proper worker script)
-    const stockfish = new Worker('stockfish.js');
-
-// Handle Stockfish responses
-stockfish.onmessage = function (event) {
-    const response = event.data;
-    console.log('Stockfish response:', response); // Log all responses for debugging
-
-    // Only act on the "bestmove" response
-    if (response.startsWith('bestmove')) {
-        const bestMove = response.split(' ')[1]; // Extract the best move (e.g., "e7e6")
-        console.log('Best move:', bestMove);
-
-        // Make the move on the board
-        const move = game.move({ from: bestMove.substring(0, 2), to: bestMove.substring(2, 4) });
-
-        if (move === null) {
-            console.error('Invalid move from Stockfish:', bestMove);
-            return;
+        function updateDifficulty(value) {
+            document.getElementById("difficulty-value").textContent = value;
+            stockfish.postMessage(`setoption name Skill Level value ${value}`);
         }
 
-        // Update the board position
-        board.position(game.fen());
 
-        // Update the game status
-        updateStatus();
+        board = Chessboard('chessboard', {
+            draggable: true,
+            position: 'start',
+            onDragStart: (source, piece) => {
+                if (!playerTurn || (game.turn() === 'w' && piece.startsWith('b')) || (game.turn() === 'b' && piece.startsWith('w'))) {
+                    return false; // Prevent moving opponent's pieces
+                }
+            },
+            onDrop: handleMove
+        });
 
-        // Stop Stockfish from calculating further
-        stockfish.postMessage('stop'); // Stop Stockfish after making the move
-    }
-};
+        function handleMove(source, target) {
+            if (!playerTurn) return 'snapback';
 
-    stockfish.onerror = function(error) {
-        console.log('Stockfish Web Worker error:', error); // Log any errors from the worker
-    };
+            let moveObj = { from: source, to: target };
 
-    stockfish.postMessage('uci'); // Initialize Stockfish
-    stockfish.postMessage('ucinewgame'); // Start a new game with Stockfish
+            // Handle pawn promotion
+            if (game.get(source).type === 'p' && (target[1] === '1' || target[1] === '8')) {
+                pendingPromotion = { source, target };
+                document.getElementById('promotion-popup').style.display = 'block';
+                return;
+            }
 
-    // Handle user moves
-    function handleMove(source, target) {
-    const move = game.move({ from: source, to: target, promotion: 'q' }); // Always promote to queen for simplicity
+            // Check if the move is legal before making it
+            const move = game.move(moveObj);
+            if (!move) return 'snapback';
 
-    if (move === null) {
-        return 'snapback'; // Illegal move
-    }
+            board.position(game.fen());
+            updateStatus();
+            playerTurn = false; // Lock player movement
 
-    // Update the board and status
-    board.position(game.fen());
-    updateStatus();
-
-    // Send the updated position to Stockfish
-    stockfish.postMessage(`position fen ${game.fen()}`);
-
-    // Ask Stockfish to calculate its move
-    stockfish.postMessage('go depth 15');
-}
-
-    // Function to handle Stockfish's response
-    function handleEngineResponse(event) {
-        const response = event.data;
-        console.log('Handling response:', response); // Log the response
-
-        if (response.startsWith('bestmove')) {
-            const bestMove = response.split(' ')[1];
-            const move = game.move(bestMove);  // Make the move with Stockfish's recommendation
-            board.position(game.fen());  // Update the board with the new position
-            updateStatus();  // Update the game status
-
-            // Only send the updated position to Stockfish if the game isn't over
             if (!game.game_over()) {
-                stockfish.postMessage(`position fen ${game.fen()}`);
-                stockfish.postMessage('go depth 15');  // Request the next move from Stockfish if the game isn't over
-            } else {
-                console.log("Game over!");
-                stockfish.postMessage('quit'); // Stop Stockfish once the game is over
+                setTimeout(() => {
+                    stockfish.postMessage(`position fen ${game.fen()}`);
+                    stockfish.postMessage('go depth 15');
+                }, 200);
             }
         }
-    }
 
-    function updateStatus() {
-    let status = '';
 
-    if (game.in_checkmate()) {
-        status = 'Game over, checkmate!';
-    } else if (game.in_draw()) {
-        status = 'Game over, draw!';
-    } else {
-        status = game.turn() === 'w' ? 'White to move' : 'Black to move';
-        if (game.in_check()) {
-            status += ', check!';
+        function setPromotion(piece) {
+            if (!pendingPromotion) return;
+            const { source, target } = pendingPromotion;
+            pendingPromotion = null;
+            document.getElementById('promotion-popup').style.display = 'none';
+            makeMove({ from: source, to: target, promotion: piece });
         }
-    }
 
-    document.getElementById('status').textContent = status;
-}
+        function makeMove(moveObj) {
+            if (!playerTurn) return;
 
-    // Start the game
-    updateStatus();
-</script>
+            const move = game.move(moveObj);
+            if (!move) return 'snapback';
+
+            board.position(game.fen());
+            updateStatus();
+            playerTurn = false; // Lock player movement
+
+            if (!game.game_over()) {
+                setTimeout(() => {
+                    stockfish.postMessage(`position fen ${game.fen()}`);
+                    stockfish.postMessage('go depth 15');
+                }, 200);
+            }
+        }
+
+        stockfish.onmessage = function (event) {
+            if (playerTurn) return; // Stockfish only moves when it's its turn
+
+            if (event.data.startsWith('bestmove')) {
+                const bestMove = event.data.split(' ')[1];
+
+                if (bestMove !== '(none)') { // Ensure Stockfish actually has a move
+                    game.move({ from: bestMove.substring(0, 2), to: bestMove.substring(2, 4), promotion: bestMove.substring(4, 5) });
+                    board.position(game.fen());
+                }
+
+                updateStatus();
+                playerTurn = true; // Allow the player to move again
+            }
+        };
+
+        function updateStatus() {
+            let status = '';
+            if (game.game_over()) {
+                // If the game is over, display the result (checkmate or draw)
+                status = game.in_checkmate() ? 'Checkmate!' :
+                        game.in_draw() ? 'Draw!' : 'Game Over';
+            } else {
+                // Otherwise, show the current turn
+                status = game.turn() === 'w' ? 'White to move' : 'Black to move';
+                if (game.in_check()) {
+                    status += ', check!';
+                }
+            }
+
+            document.getElementById('status').textContent = status;
+        }
 
 
-
+        stockfish.postMessage('uci');
+        stockfish.postMessage('ucinewgame');
+        updateStatus();
+    </script>
 </body>
 </html>

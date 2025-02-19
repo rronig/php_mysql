@@ -34,28 +34,18 @@ $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tetris Game</title>
-    <style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Rubik+Dirt&family=Rubik+Spray+Paint&family=Sigmar&display=swap" rel="stylesheet">
+     <style>
         body { 
             text-align: center; 
-            background: black; 
+            background: linear-gradient(87deg, rgb(87, 143, 202), rgb(209, 248, 239));
+            background-attachment: fixed; /* Ensures the gradient covers the entire page */
             color: white;
             font-family: Arial, sans-serif;
         }
-        .arcade-container {
-            position: relative;
-            width: 650px;
-            margin: auto;
-        }
-        .arcade-image {
-            width: 100%;
-            display: block;
-        }
         #gameCanvas {
-            position: absolute;
-            top: 24%;
-            left: 19%;
-            width: 60%;
-            height: 30%;
             background: gray;
             border: 2px solid black;
             z-index: 10;
@@ -65,38 +55,69 @@ $conn->close();
             top: 10px;
             right: 10px;
             padding: 10px 20px;
-            background: #4B5945;
+            background: #3673b5;
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 32px;
+        }
+        .dashboard-button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            padding: 10px 20px;
+            background: rgb(54, 116, 181);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 32px;
         }
         .logout-button:hover {
-            background: #66785F;
+            background: #5C8FC7;
+        }
+        .dashboard-button:hover {
+            background: #5C8FC7;
+        }
+        .sigmar-regular {
+            font-family: "Sigmar", serif;
+            font-weight: 400;
+            font-style: normal;
+            font-size: 64px;
+        }
+        .rubik-dirt-regular {
+            font-family: "Rubik Dirt", serif;
+            font-weight: 400;
+            font-style: normal;
+            font-size:32px;
+        }
+        .rubik-spray-paint-regular {
+            font-family: "Rubik Spray Paint", serif;
+            font-weight: 400;
+            font-style: normal;
         }
     </style>
 </head>
 <body>
     <!-- Logout Button -->
     <form action="logout.php" method="POST">
-        <button type="submit" class="logout-button">Logout</button>
+        <button type="submit" class="logout-button rubik-spray-paint-regular">Logout</button>
     </form>
-    <h1>Tetris Game</h1>
-    <div class="arcade-container">
-        <img src="arcade.png" alt="Arcade Machine" class="arcade-image">
-        <canvas id="gameCanvas" width="300" height="600"></canvas>
-    </div>
-    <p>Score: <span id="score">0</span></p>
-    <p>High Score: <span id="high-score"><?php echo $high_score ?? '0'; ?></span></p>
-    <h1><a href="snake.php" style="background-color:white;text-decoration:none;padding:5px;border:solid white;">Also Try Snake!</a></h1>
+    <form action="dashboard.php" method="POST">
+        <button type="submit" class="dashboard-button rubik-spray-paint-regular">Dashboard</button>
+    </form>
+    <h1 class="sigmar-regular">Tetris Game</h1>
+    <canvas id="gameCanvas" width="900" height="1200"></canvas>
+    <h1 class="rubik-dirt-regular">Score: <span id="score">0</span></h1>
+    <h1 class="rubik-dirt-regular">High Score: <span id="high-score"><?php echo $high_score ?? '0'; ?></span></h1>
     <script>
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
 
         const box = 30;
-        const rows = 20;
-        const columns = 10;
+        const rows = 40;
+        const columns = 30;
         let score = 0;
         let gameInterval;
         let board = Array.from({ length: rows }, () => Array(columns).fill(null));
@@ -111,16 +132,26 @@ $conn->close();
         ];
 
         const colors = ["#800080", "#ffff00", "#00ff00", "#ff0000", "#00ffff", "#ff7f00", "#0000ff"];
-        let currentPieceObj = generatePiece();
-        let currentPos = { x: 4, y: 0 };
-        document.addEventListener("keydown", movePiece);
+
         function generatePiece() {
             let randomIndex = Math.floor(Math.random() * pieces.length);
-            return {
+            const piece = {
                 shape: pieces[randomIndex],
                 color: colors[randomIndex]
             };
+
+            // Calculate the center position for the piece
+            const pieceWidth = piece.shape[0].length;
+            const centerX = Math.floor((columns - pieceWidth) / 2);
+
+            return piece;
         }
+
+        let currentPieceObj = generatePiece();
+        let currentPos = { x: Math.floor((columns - currentPieceObj.shape[0].length) / 2), y: 0 };
+
+        document.addEventListener("keydown", movePiece);
+
         function drawBoard() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -143,7 +174,6 @@ $conn->close();
                 }
             }
         }
-
 
         function movePiece(event) {
             if (event.keyCode === 37) moveLeft(); // Left arrow
@@ -171,7 +201,6 @@ $conn->close();
             drawBoard();
         }
 
-
         function canMove(dx, dy, piece = currentPieceObj.shape) {
             for (let r = 0; r < piece.length; r++) {
                 for (let c = 0; c < piece[r].length; c++) {
@@ -189,9 +218,13 @@ $conn->close();
 
         function clearRows() {
             for (let r = rows - 1; r >= 0; r--) {
-                if (board[r].every(cell => cell === 1)) {
+                // Check if every cell in the row is filled (not null)
+                if (board[r].every(cell => cell !== null)) {
+                    // Remove the completed row
                     board.splice(r, 1);
-                    board.unshift(Array(columns).fill(0));
+                    // Add a new empty row at the top
+                    board.unshift(Array(columns).fill(null));
+                    // Increase the score
                     score += 100;
                     document.getElementById("score").innerText = score;
                 }
@@ -224,14 +257,13 @@ $conn->close();
         }
 
         function resetGame() {
-            board = Array.from({ length: rows }, () => Array(columns).fill(0));
+            board = Array.from({ length: rows }, () => Array(columns).fill(null));
             score = 0;
             document.getElementById("score").innerText = score;
             gameInterval = setInterval(autoDrop, 100);
             saveScore(score); // Save the score when the game resets
         }
 
-        // Modify the game over logic to save the score
         function placePiece() {
             for (let r = 0; r < currentPieceObj.shape.length; r++) {
                 for (let c = 0; c < currentPieceObj.shape[r].length; c++) {
@@ -242,9 +274,9 @@ $conn->close();
             }
             score += 10;
             document.getElementById("score").innerText = score;
-            clearRows();
+            clearRows(); // Clear completed rows after placing the piece
             currentPieceObj = generatePiece();
-            currentPos = { x: 4, y: 0 };
+            currentPos = { x: Math.floor((columns - currentPieceObj.shape[0].length) / 2), y: 0 };
             if (!canMove(0, 0)) {
                 clearInterval(gameInterval);
                 alert("Game Over! Your score: " + score);

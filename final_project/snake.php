@@ -34,63 +34,83 @@ $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Snake Game</title>
-    <style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Rubik+Dirt&family=Rubik+Spray+Paint&family=Sigmar&display=swap" rel="stylesheet">
+     <style>
         body { 
             text-align: center; 
-            background: black; 
+            background: linear-gradient(87deg, rgb(87, 143, 202), rgb(209, 248, 239));
+            background-attachment: fixed; /* Ensures the gradient covers the entire page */
             color: white;
             font-family: Arial, sans-serif;
         }
-        .arcade-container {
-            position: relative;
-            width: 650px;
-            margin: auto;
-        }
-        .arcade-image {
-            width: 100%;
-            display: block;
-        }
         #gameCanvas {
-            position: absolute;
-            top: 24%;
-            left: 19%;
-            width: 60%;
-            height: 30%;
             background: gray;
             border: 2px solid black;
-            z-index: 10;
+            margin: 20px auto;
+            width: 800px;
         }
         .logout-button {
             position: absolute;
             top: 10px;
             right: 10px;
             padding: 10px 20px;
-            background: #4B5945;
+            background: #3673b5;
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 32px;
+        }
+        .dashboard-button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            padding: 10px 20px;
+            background: rgb(54, 116, 181);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 32px;
         }
         .logout-button:hover {
-            background: #66785F;
+            background: #5C8FC7;
+        }
+        .dashboard-button:hover {
+            background: #5C8FC7;
+        }
+        .sigmar-regular {
+            font-family: "Sigmar", serif;
+            font-weight: 400;
+            font-style: normal;
+            font-size: 64px;
+        }
+        .rubik-dirt-regular {
+            font-family: "Rubik Dirt", serif;
+            font-weight: 400;
+            font-style: normal;
+        }
+        .rubik-spray-paint-regular {
+            font-family: "Rubik Spray Paint", serif;
+            font-weight: 400;
+            font-style: normal;
         }
     </style>
 </head>
 <body>
     <!-- Logout Button -->
     <form action="logout.php" method="POST">
-        <button type="submit" class="logout-button">Logout</button>
+        <button type="submit" class="logout-button rubik-spray-paint-regular">Logout</button>
     </form>
-
-    <h1>Snake Game</h1>
-    <div class="arcade-container">
-        <img src="arcade.png" alt="Arcade Machine" class="arcade-image">
-        <canvas id="gameCanvas" width="400" height="400"></canvas>
-    </div>
-    <p>Score: <span id="score">0</span></p>
-    <p>High Score: <span id="high-score"><?php echo $high_score ?? '0'; ?></span></p>
-    <h1><a href="tetris.php" style="background-color:white;text-decoration:none;padding:5px;border:solid white;">Also Try Tetris!</a></h1>
+    <form action="dashboard.php" method="POST">
+        <button type="submit" class="dashboard-button rubik-spray-paint-regular">Dashboard</button>
+    </form>
+    <h1 class="sigmar-regular">Snake Game</h1>
+    <canvas id="gameCanvas" width="400" height="400"></canvas>
+    <h1 class="rubik-dirt-regular">Score: <span id="score">0</span></h1>
+    <h1 class="rubik-dirt-regular">High Score: <span id="high-score"><?php echo $high_score ?? '0'; ?></span></h1>
 
     <script>
         const canvas = document.getElementById("gameCanvas");
