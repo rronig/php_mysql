@@ -209,6 +209,7 @@ if (empty($_SESSION['username'])) {
             let status = '';
             if (game.game_over()) {
                 // If the game is over, display the result (checkmate or draw)
+                saveHighScore(document.getElementById("difficulty").value);
                 status = game.in_checkmate() ? 'Checkmate!' :
                         game.in_draw() ? 'Draw!' : 'Game Over';
             } else {
@@ -220,6 +221,21 @@ if (empty($_SESSION['username'])) {
             }
 
             document.getElementById('status').textContent = status;
+        }
+        function saveHighScore(difficulty) {
+            $.ajax({
+                url: 'savescore.php',
+                type: 'POST',
+                data: {
+                    difficulty: difficulty
+                },
+                success: function(response) {
+                    console.log('Score saved successfully');
+                },
+                error: function(xhr, status, error) {
+                    console.log('Error saving score: ' + error);
+                }
+            });
         }
 
 

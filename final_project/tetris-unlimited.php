@@ -19,7 +19,7 @@ if ($conn->connect_error) {
 
 // Fetch the user's high score for Tetris
 $user_id = $_SESSION['user_id'];
-$sql = "SELECT real_tetris FROM scores WHERE user_id = ?";
+$sql = "SELECT tetris FROM scores WHERE user_id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
@@ -107,7 +107,7 @@ $conn->close();
     <form action="dashboard.php" method="POST">
         <button type="submit" class="dashboard-button rubik-spray-paint-regular">Dashboard</button>
     </form>
-    <h1 class="sigmar-regular">Tetris Game</h1>
+    <h1 class="sigmar-regular">Tetris Unlimited</h1>
     <canvas id="gameCanvas" width="900" height="1200"></canvas>
     <h1 class="rubik-dirt-regular">Score: <span id="score">0</span></h1>
     <h1 class="rubik-dirt-regular">High Score: <span id="high-score"><?php echo $high_score ?? '0'; ?></span></h1>
@@ -115,9 +115,9 @@ $conn->close();
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
 
-        const box = 50;
-        const rows = 24;
-        const columns = 18;
+        const box = 30;
+        const rows = 40;
+        const columns = 30;
         let score = 0;
         let gameInterval;
         let board = Array.from({ length: rows }, () => Array(columns).fill(null));
@@ -246,7 +246,7 @@ $conn->close();
 
         function saveScore(score) {
             const xhr = new XMLHttpRequest();
-            xhr.open("POST", "save_real_tetris_score.php", true);
+            xhr.open("POST", "save_tetris_score.php", true);
             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4 && xhr.status === 200) {

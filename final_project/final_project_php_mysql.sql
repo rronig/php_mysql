@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 12, 2025 at 09:45 PM
+-- Generation Time: Feb 25, 2025 at 06:32 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -28,9 +28,20 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `scores` (
+  `id` int(11) NOT NULL,
   `snake` int(11) NOT NULL,
-  `tetris` int(11) NOT NULL
+  `difficulty` int(255) NOT NULL,
+  `tetris` int(11) NOT NULL DEFAULT 0,
+  `real_tetris` int(255) NOT NULL,
+  `user_id` int(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `scores`
+--
+
+INSERT INTO `scores` (`id`, `snake`, `difficulty`, `tetris`, `real_tetris`, `user_id`) VALUES
+(11, 300, 0, 0, 150, 9);
 
 -- --------------------------------------------------------
 
@@ -52,12 +63,19 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `username`, `email`, `password`, `role`) VALUES
-(3, 'a a a', 'a', 'a@a', 'a', 'user'),
-(4, 'b', 'b', 'b@b', 'b', 'user');
+(9, 'b', 'b', 'b@b', 'b', 'admin'),
+(10, 'rron', 'rron', 'rron@gmail.com', 'rron', 'user');
 
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `scores`
+--
+ALTER TABLE `scores`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_user_id` (`user_id`);
 
 --
 -- Indexes for table `users`
@@ -70,10 +88,26 @@ ALTER TABLE `users`
 --
 
 --
+-- AUTO_INCREMENT for table `scores`
+--
+ALTER TABLE `scores`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+
+--
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `scores`
+--
+ALTER TABLE `scores`
+  ADD CONSTRAINT `fk_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

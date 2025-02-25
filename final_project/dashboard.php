@@ -137,6 +137,7 @@ $conn->close();
             <div class="d-flex justify-content-center gap-3">
                 <a href="snake.php" class="montserrat game-btn snake" style="margin-top: 20px;">Play Snake</a>
                 <a href="tetris.php" class="montserrat game-btn tetris" style="margin-top: 20px;">Play Tetris</a>
+                <a href="tetris-unlimited.php" class="montserrat game-btn tetris" style="margin-top: 20px;">Play Tetris Unlimited</a>
                 <a href="chess.php" class="montserrat game-btn chess" style="margin-top: 20px;">Play Chess</a>
             </div>
         </div>

@@ -146,7 +146,7 @@ $conn->close();
         }
 
         function drawGame() {
-            directionChangedThisFrame = false; // Reset the flag at the start of each frame
+            directionChangedThisFrame = false;
 
             ctx.fillStyle = "gray";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -165,30 +165,34 @@ $conn->close();
             if (direction === "RIGHT") newX += box;
             if (direction === "DOWN") newY += box;
 
+            // Edge teleportation logic
+            if (newX < 0) newX = canvas.width - box;    // Left edge to right
+            if (newX >= canvas.width) newX = 0;         // Right edge to left
+            if (newY < 0) newY = canvas.height - box;   // Top edge to bottom
+            if (newY >= canvas.height) newY = 0;        // Bottom edge to top
+
             let newHead = {x: newX, y: newY};
 
-            // Check for collisions after updating the snake's head position
+            // Check self-collision (but no wall collision anymore)
             if (collision(newHead)) {
                 clearInterval(gameInterval);
                 alert("Game Over! Your score: " + score);
-                saveScore(score); // Save score when game ends
+                saveScore(score);
                 resetGame();
                 return;
             }
 
-            // Check if the snake eats the food
             if (newX === food.x && newY === food.y) {
                 score += 10;
                 document.getElementById("score").innerText = score;
                 food = randomFood();
             } else {
-                // Remove the tail segment if no food is eaten
                 snake.pop();
             }
 
-            // Add the new head to the snake
             snake.unshift(newHead);
         }
+
         
         function saveScore(score) {
             const xhr = new XMLHttpRequest();
@@ -203,12 +207,6 @@ $conn->close();
         }
 
         function collision(head) {
-            // Proper boundary check
-            if (head.x < 0 || head.y < 0 || head.x >= canvas.width || head.y >= canvas.height) {
-                console.warn("Boundary collision at:", head.x, head.y);
-                return true;
-            }
-
             // Check if the snake collides with itself
             for (let i = 1; i < snake.length; i++) {
                 if (head.x === snake[i].x && head.y === snake[i].y) {
@@ -219,6 +217,7 @@ $conn->close();
 
             return false;
         }
+
 
         function randomFood() {
             return {
